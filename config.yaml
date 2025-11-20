@@ -3,11 +3,8 @@ name: uni_v3
 rollback_on_reorg: true
 unordered_multichain_mode: true
 preload_handlers: true
+
 contracts:
-  - name: UniswapV3Factory
-    handler: src/EventHandlers.ts
-    events:
-      - event: PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)
   - name: UniswapV3Pool
     handler: src/EventHandlers.ts
     events:
@@ -40,66 +37,23 @@ networks:
   - id: 1 # Ethereum Mainnet
     start_block: 0
     contracts:
-      - name: UniswapV3Factory
-        address: 0x1F98431c8aD98523631AE4a59f267346ea31F984
       - name: UniswapV3Pool
-  # - id: 42161 # Arbitrum One
-  #   start_block: 0
-  #   contracts:
-  #     - name: UniswapV3Factory
-  #       address: 0x1F98431c8aD98523631AE4a59f267346ea31F984
-  #     - name: UniswapV3Pool
+        address:
+          # USDC/WETH 0.05% - token0: USDC (0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48), token1: WETH (0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2), fee: 500
+          - 0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640
+
+          # USDC/WETH 0.30% - token0: USDC, token1: WETH, fee: 3000
+          # - 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8
+
+          # Add more pool addresses here with their metadata in comments
+          # Format: TOKEN0/TOKEN1 FEE% - token0: ADDRESS, token1: ADDRESS, fee: TIER
+
   - id: 10 # Optimism
     start_block: 0
     contracts:
-      - name: UniswapV3Factory
-        address: 0x1F98431c8aD98523631AE4a59f267346ea31F984
       - name: UniswapV3Pool
-# # - id: 8453 # base
-# #   start_block: 0
-# #   contracts:
-# #   - name: UniswapV3Factory
-# #     address: 0x33128a8fc17869897dce68ed026d694621f6fdfd
-# #   - name: UniswapV3Pool
-# - id: 137 # polygon
-#   start_block: 0
-#   contracts:
-#   - name: UniswapV3Factory
-#     address: 0x1F98431c8aD98523631AE4a59f267346ea31F984
-#   - name: UniswapV3Pool
-# - id: 56 # bsc
-#   start_block: 0
-#   contracts:
-#   - name: UniswapV3Factory
-#     address: 0xdb1d10011ad0ff90774d0c6bb92e5c5c8b4461f7
-#   - name: UniswapV3Pool
-# - id: 43114 # avalanche
-#   start_block: 0
-#   contracts:
-#   - name: UniswapV3Factory
-#     address: 0x740b1c1de25031C31FF4fC9A62f554A55cdC1baD
-#   - name: UniswapV3Pool
-# - id: 81457 # blast
-#   start_block: 0
-#   contracts:
-#   - name: UniswapV3Factory
-#     address: 0x792edade80af5fc680d96a2ed80a44247d2cf6fd
-#   - name: UniswapV3Pool
-# # - id: 7777777 # Zora
-# #   start_block: 0
-# #   contracts:
-# #   - name: UniswapV3Factory
-# #     address: 0x7145f8aeef1f6510e92164038e1b6f8cb2c42cbb
-# #   - name: UniswapV3Pool
-# # - id: 480 # World // don't have a hypersync instance for world chain
-# #   start_block: 0
-# #   contracts:
-# #   - name: UniswapV3Factory
-# #     address: 0x7a5028bda40e7b173c278c5342087826455ea25a
-# #   - name: UniswapV3Pool
-# - id: 130 # Uni
-#   start_block: 0
-#   contracts:
-#   - name: UniswapV3Factory
-#     address: 0x1f98400000000000000000000000000000000003
-#   - name: UniswapV3Pool
+        address:
+          # USDC/WETH 0.05% - token0: USDC (0x7f5c764cbc14f9669b88837ca1490cca17c31607), token1: WETH (0x4200000000000000000000000000000000000006), fee: 500
+          - 0x85149247691df622eaf1a8bd0cafd40bc45154a9
+
+          # Add more pool addresses here

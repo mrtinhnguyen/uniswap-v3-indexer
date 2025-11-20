@@ -1,69 +1,12 @@
 
-# Envio Uniswap V3 Indexer
+This is a fork of https://github.com/enviodev/uniswap-v3-indexer with some modifications:
 
-All the entities in this indexer that use valid evm addresses as their IDs are in lowercase to avoid confusion. They are also prefixed with the chain ID in the form `<chain id>-<address>` to avoid possible id clashes, as this is a multi-chain indexer.
+- Store everything as BigInts with the exact same precision as they appear on-chain, instead of BigDecimal.
+- Track fees as fees0 and fees1 separately instead of the previous feesUSD, which becomes highly misleading as it accumulates over time.
+- Add tracking LP positions.
+- Add tracking feeGrowthOutside0X128 and feeGrowthOutside1X128 for ticks.
+- Add gts for linting.
+- Remove tracking token prices in USD/ETH.
+- Remove the token whitelist and several redundant or unnecessary fields.
 
-> [!NOTE]
-> The GraphQL query structure of Envio and Subgraph has differences. Check this [link](https://docs.sablier.com/api/caveats) to read more about it. Also, unlike Subgraph, tokens in this indexer doesn't have a `totalSupply` field as it cannot be updated reliably.
-
-## Sample Queries
-
-Envio uses GraphQL as the query language. The below examples demonstrate how to use GraphQL queries to extract data, in simple terms.
-
-#### Basic Query
-```graphql
-{
-  Bundle {
-    ethPriceUSD
-    id
-  }
-}
-```
-What It Does: Fetches all the bundles, showing how you the specified fields `ethPriceUSD` and `id`.
-
-#### Nested Query
-```graphql
-{
-  Pool {
-    id
-    liquidity
-    token0 {
-      id
-      name
-      volume
-    }
-  }
-}
-```
-What It Does: Fetches pools and their `token0`s in one go, showing how GraphQL handles related data.
-
-#### Query with Filtering
-```graphql
-{
-  Token(where: {isWhitelisted: {_eq: true}}) {
-    id
-    name
-    symbol
-    decimals
-    poolCount
-  }
-}
-```
-What It Does: Gets all the whitelisted tokens and their specified fields, illustrating how to filter results based on conditions.
-
-#### Query with Variables
-```graphql
-query WhitelistedTokens($whitelisted: Boolean) {
-  Token(where: {isWhitelisted: {_eq: $whitelisted}}) {
-    id
-    name
-    symbol
-    decimals
-    poolCount
-  }
-}
-```
-What It Does: Lets you dynamically choose values for every possible variables. Here, it's the same example as the previous one, but now you can change the condition through a variable. This `WhitelistedTokens` query can be invoked by providing values in the form `{ "whitelisted": true }`.
-___
-
- These examples should help you see how GraphQL works for different needs. For more details, check out the official documentation at GraphQL Queries or Hasura GraphQL Tutorial.
+These changes add a lot of valuable data to the index while also making indexing significantly faster and taking less storage space.
