@@ -3,8 +3,6 @@
   "version": "0.1.0",
   "scripts": {
     "clean": "gts clean",
-    "build": "tsc --build",
-    "watch": "tsc --watch",
     "mocha": "ts-mocha test/**/*.ts",
     "codegen": "envio codegen",
     "dev": "envio dev",
@@ -12,7 +10,7 @@
     "start": "envio start",
     "lint": "gts lint",
     "fix": "gts fix",
-    "posttest": "npm run lint"
+    "posttest": "pnpm run lint"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",

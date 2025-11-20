@@ -1,7 +1,7 @@
 import {createEffect, S} from 'envio';
 import {type Address, getContract, erc20Abi} from 'viem';
-import {ADDRESS_ZERO} from '~/utils';
-import {getChain, getPublicClient} from '~/utils/rpc';
+import {ADDRESS_ZERO} from '../utils';
+import {getChain, getPublicClient} from '../utils/rpc';
 
 const getNativeTokenMetadata = (chainId: number) => {
   const chain = getChain(chainId);

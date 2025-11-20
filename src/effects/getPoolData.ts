@@ -1,7 +1,7 @@
 import {createEffect, S} from 'envio';
 import {getContract} from 'viem';
-import {uniswapV3PoolAbi} from '~/abi/IUniswapV3Pool';
-import {getPublicClient} from '~/utils/rpc';
+import {uniswapV3PoolAbi} from '../abi/IUniswapV3Pool';
+import {getPublicClient} from '../utils/rpc';
 
 export const getPoolDataEffect = createEffect(
   {

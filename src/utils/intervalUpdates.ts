@@ -21,6 +21,10 @@ export const updatePoolDayData = async (
         fees0: 0n,
         fees1: 0n,
         txCount: 0n,
+        swapCount: 0n,
+        mintCount: 0n,
+        burnCount: 0n,
+        collectCount: 0n,
         openingPrice: pool.sqrtPriceX96,
         high: pool.sqrtPriceX96,
         low: pool.sqrtPriceX96,
@@ -67,6 +71,10 @@ export const updatePoolHourData = async (
         fees0: 0n,
         fees1: 0n,
         txCount: 0n,
+        swapCount: 0n,
+        mintCount: 0n,
+        burnCount: 0n,
+        collectCount: 0n,
         openingPrice: pool.sqrtPriceX96,
         high: pool.sqrtPriceX96,
         low: pool.sqrtPriceX96,
@@ -111,6 +119,10 @@ export const updateTokenDayData = async (
         volume: 0n,
         tvl: 0n,
         txCount: 0n,
+        swapCount: 0n,
+        mintCount: 0n,
+        burnCount: 0n,
+        collectCount: 0n,
       };
 
   tokenDayData.tvl = token.tvl;
@@ -139,6 +151,10 @@ export const updateTokenHourData = async (
         volume: 0n,
         tvl: 0n,
         txCount: 0n,
+        swapCount: 0n,
+        mintCount: 0n,
+        burnCount: 0n,
+        collectCount: 0n,
       };
 
   tokenHourData.tvl = token.tvl;

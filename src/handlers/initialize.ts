@@ -1,7 +1,7 @@
 import {handlerContext, UniswapV3Pool} from 'generated';
-import {updatePoolDayData, updatePoolHourData} from '~/utils/intervalUpdates';
-import {getPoolDataEffect} from '~/effects/getPoolData';
-import {getTokenMetadataEffect} from '~/effects/getTokenMetadata';
+import {updatePoolDayData, updatePoolHourData} from '../utils/intervalUpdates';
+import {getPoolDataEffect} from '../effects/getPoolData';
+import {getTokenMetadataEffect} from '../effects/getTokenMetadata';
 
 export const getOrCreateToken = async (
   tokenId: string,
@@ -24,6 +24,11 @@ export const getOrCreateToken = async (
       volume: 0n,
       txCount: 0n,
       poolCount: 0n,
+      swapCount: 0n,
+      mintCount: 0n,
+      burnCount: 0n,
+      positionCount: 0n,
+      lpCount: 0n,
       tvl: 0n,
     };
     context.Token.set(token);
@@ -67,8 +72,8 @@ UniswapV3Pool.Initialize.handler(async ({event, context}) => {
   // Create the pool entity
   const pool = {
     id: poolId,
-    createdAtTimestamp: BigInt(event.block.timestamp),
-    createdAtBlockNumber: BigInt(event.block.number),
+    createdAtTimestamp: event.block.timestamp,
+    createdAtBlockNumber: event.block.number,
     token0_id: token0Id,
     token1_id: token1Id,
     feeTier: BigInt(poolData.fee),
@@ -82,12 +87,18 @@ UniswapV3Pool.Initialize.handler(async ({event, context}) => {
     volume1: 0n,
     fees0: 0n,
     fees1: 0n,
-    collectedfees0: 0n,
-    collectedfees1: 0n,
+    collected0: 0n,
+    collected1: 0n,
     txCount: 0n,
+    swapCount: 0n,
+    mintCount: 0n,
+    burnCount: 0n,
+    collectCount: 0n,
+    positionCount: 0n,
+    activePositionCount: 0n,
+    lpCount: 0n,
     tvl0: 0n,
     tvl1: 0n,
-    liquidityProviderCount: 0n,
   };
 
   context.Pool.set(pool);

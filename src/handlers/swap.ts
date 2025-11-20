@@ -1,13 +1,13 @@
 import {handlerContext, UniswapV3Pool, Swap} from 'generated';
 import {
-  loadTransaction,
+  getOrCreateTransaction,
   abs,
   calculateFees,
   updateFeeGrowth,
   flipFeeGrowthOutside,
   getTicksCrossed,
-} from '~/utils';
-import * as intervalUpdates from '~/utils/intervalUpdates';
+} from '../utils';
+import * as intervalUpdates from '../utils/intervalUpdates';
 
 // Helper function to update tick fee growth when tick is crossed
 const updateTickCrossed = async (
@@ -106,6 +106,7 @@ UniswapV3Pool.Swap.handler(async ({event, context}) => {
   pool.fees0 = pool.fees0 + fees0;
   pool.fees1 = pool.fees1 + fees1;
   pool.txCount = pool.txCount + 1n;
+  pool.swapCount = pool.swapCount + 1n;
 
   // Update the pool with the new active liquidity, price, and tick.
   pool.liquidity = event.params.liquidity;
@@ -118,16 +119,18 @@ UniswapV3Pool.Swap.handler(async ({event, context}) => {
   token0.volume = token0.volume + amount0Abs;
   token0.tvl = token0.tvl + amount0;
   token0.txCount = token0.txCount + 1n;
+  token0.swapCount = token0.swapCount + 1n;
 
   // update token1 data
   token1.volume = token1.volume + amount1Abs;
   token1.tvl = token1.tvl + amount1;
   token1.txCount = token1.txCount + 1n;
+  token1.swapCount = token1.swapCount + 1n;
 
   context.Pool.set(pool);
 
   // create Swap event
-  const transaction = await loadTransaction(
+  const transaction = await getOrCreateTransaction(
     event.transaction.hash,
     event.block.number,
     timestamp,
@@ -149,7 +152,7 @@ UniswapV3Pool.Swap.handler(async ({event, context}) => {
     amount1: amount1,
     tick: event.params.tick,
     sqrtPriceX96: event.params.sqrtPriceX96,
-    logIndex: BigInt(event.logIndex),
+    logIndex: event.logIndex,
   };
 
   // interval data
@@ -174,17 +177,23 @@ UniswapV3Pool.Swap.handler(async ({event, context}) => {
   poolDayData.volume1 = poolDayData.volume1 + amount1Abs;
   poolDayData.fees0 = poolDayData.fees0 + fees0;
   poolDayData.fees1 = poolDayData.fees1 + fees1;
+  poolDayData.swapCount = poolDayData.swapCount + 1n;
 
   poolHourData.volume0 = poolHourData.volume0 + amount0Abs;
   poolHourData.volume1 = poolHourData.volume1 + amount1Abs;
   poolHourData.fees0 = poolHourData.fees0 + fees0;
   poolHourData.fees1 = poolHourData.fees1 + fees1;
+  poolHourData.swapCount = poolHourData.swapCount + 1n;
 
   token0DayData.volume = token0DayData.volume + amount0Abs;
+  token0DayData.swapCount = token0DayData.swapCount + 1n;
   token0HourData.volume = token0HourData.volume + amount0Abs;
+  token0HourData.swapCount = token0HourData.swapCount + 1n;
 
   token1DayData.volume = token1DayData.volume + amount1Abs;
+  token1DayData.swapCount = token1DayData.swapCount + 1n;
   token1HourData.volume = token1HourData.volume + amount1Abs;
+  token1HourData.swapCount = token1HourData.swapCount + 1n;
 
   context.Swap.set(swap);
   context.TokenDayData.set(token0DayData);

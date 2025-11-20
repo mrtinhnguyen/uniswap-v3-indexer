@@ -1,10 +1,11 @@
 import {UniswapV3Pool, Burn} from 'generated';
 import {
-  loadTransaction,
+  getOrCreateTransaction,
   getFeeGrowthInside,
-  calculateTokensOwed,
-} from '~/utils';
-import * as intervalUpdates from '~/utils/intervalUpdates';
+  calculateAccruedFees,
+  getOrCreateLiquidityProvider,
+} from '../utils';
+import * as intervalUpdates from '../utils/intervalUpdates';
 
 UniswapV3Pool.Burn.handler(async ({event, context}) => {
   const poolId = `${event.chainId}-${event.srcAddress.toLowerCase()}`;
@@ -16,14 +17,28 @@ UniswapV3Pool.Burn.handler(async ({event, context}) => {
   const poolRO = await context.Pool.get(poolId);
   if (!poolRO) return;
 
-  const [token0RO, token1RO, lowerTickRO, upperTickRO, positionRO] =
-    await Promise.all([
-      context.Token.get(poolRO.token0_id),
-      context.Token.get(poolRO.token1_id),
-      context.Tick.get(lowerTickId),
-      context.Tick.get(upperTickId),
-      context.Position.get(positionId),
-    ]);
+  const [
+    token0RO,
+    token1RO,
+    lowerTickRO,
+    upperTickRO,
+    positionRO,
+    liquidityProviderRO,
+  ] = await Promise.all([
+    context.Token.get(poolRO.token0_id),
+    context.Token.get(poolRO.token1_id),
+    context.Tick.get(lowerTickId),
+    context.Tick.get(upperTickId),
+    context.Position.get(positionId),
+    getOrCreateLiquidityProvider(
+      event.chainId,
+      event.srcAddress,
+      event.params.owner,
+      event.block.timestamp,
+      event.block.number,
+      context,
+    ),
+  ]);
 
   if (!token0RO || !token1RO) return;
 
@@ -31,14 +46,18 @@ UniswapV3Pool.Burn.handler(async ({event, context}) => {
   const pool = {...poolRO};
   const token0 = {...token0RO};
   const token1 = {...token1RO};
+  const liquidityProvider = {...liquidityProviderRO};
   const timestamp = event.block.timestamp;
 
   const amount0 = event.params.amount0;
   const amount1 = event.params.amount1;
 
   token0.txCount = token0.txCount + 1n;
+  token0.burnCount = token0.burnCount + 1n;
   token1.txCount = token1.txCount + 1n;
+  token1.burnCount = token1.burnCount + 1n;
   pool.txCount = pool.txCount + 1n;
+  pool.burnCount = pool.burnCount + 1n;
 
   // Pools liquidity tracks the currently active liquidity given pools current tick.
   // We only want to update it on burn if the position being burnt includes the current tick.
@@ -49,7 +68,7 @@ UniswapV3Pool.Burn.handler(async ({event, context}) => {
     pool.liquidity = pool.liquidity - event.params.amount;
   }
 
-  const transaction = await loadTransaction(
+  const transaction = await getOrCreateTransaction(
     event.transaction.hash,
     event.block.number,
     timestamp,
@@ -71,7 +90,7 @@ UniswapV3Pool.Burn.handler(async ({event, context}) => {
     amount1: amount1,
     tickLower: BigInt(event.params.tickLower),
     tickUpper: BigInt(event.params.tickUpper),
-    logIndex: BigInt(event.logIndex),
+    logIndex: event.logIndex,
   };
 
   if (lowerTickRO && upperTickRO) {
@@ -111,32 +130,73 @@ UniswapV3Pool.Burn.handler(async ({event, context}) => {
       pool.currentTick,
     );
 
-    // Calculate tokens owed (uncollected fees) before burning
+    // Calculate accrued fees before burning
     if (positionRO.liquidity > 0n) {
-      const tokensOwed0 = calculateTokensOwed(
+      const accruedFees0 = calculateAccruedFees(
         positionRO.liquidity,
         feeGrowthInside0X128,
         positionRO.feeGrowthInside0LastX128,
       );
-      const tokensOwed1 = calculateTokensOwed(
+      const accruedFees1 = calculateAccruedFees(
         positionRO.liquidity,
         feeGrowthInside1X128,
         positionRO.feeGrowthInside1LastX128,
       );
 
-      position.tokensOwed0 = position.tokensOwed0 + tokensOwed0;
-      position.tokensOwed1 = position.tokensOwed1 + tokensOwed1;
+      // Add accrued fees to fees tracking
+      position.fees0 = position.fees0 + accruedFees0;
+      position.fees1 = position.fees1 + accruedFees1;
+
+      // Add accrued fees to tokensOwed
+      position.tokensOwed0 = position.tokensOwed0 + accruedFees0;
+      position.tokensOwed1 = position.tokensOwed1 + accruedFees1;
+
+      // Update LP fees
+      liquidityProvider.fees0 = liquidityProvider.fees0 + accruedFees0;
+      liquidityProvider.fees1 = liquidityProvider.fees1 + accruedFees1;
+
+      // Add accrued fees to LP tokensOwed
+      liquidityProvider.tokensOwed0 =
+        liquidityProvider.tokensOwed0 + accruedFees0;
+      liquidityProvider.tokensOwed1 =
+        liquidityProvider.tokensOwed1 + accruedFees1;
     }
 
     position.liquidity = position.liquidity - event.params.amount;
     position.withdrawn0 = position.withdrawn0 + amount0;
     position.withdrawn1 = position.withdrawn1 + amount1;
+
+    // Add withdrawn tokens to tokensOwed (tokens left after burn but before collect)
+    position.tokensOwed0 = position.tokensOwed0 + amount0;
+    position.tokensOwed1 = position.tokensOwed1 + amount1;
+
+    // Add withdrawn tokens to LP tokensOwed
+    liquidityProvider.tokensOwed0 = liquidityProvider.tokensOwed0 + amount0;
+    liquidityProvider.tokensOwed1 = liquidityProvider.tokensOwed1 + amount1;
     position.feeGrowthInside0LastX128 = feeGrowthInside0X128;
     position.feeGrowthInside1LastX128 = feeGrowthInside1X128;
+    position.burnCount = position.burnCount + 1n;
+
+    // Update active position count if position becomes inactive
+    if (position.liquidity === 0n && positionRO.liquidity > 0n) {
+      pool.activePositionCount = pool.activePositionCount - 1n;
+    }
+
+    // Update LiquidityProvider stats
+    liquidityProvider.burnCount = liquidityProvider.burnCount + 1n;
+
     context.Position.set(position);
+    context.LiquidityProvider.set(liquidityProvider);
   }
 
-  await Promise.all([
+  const [
+    poolDayData,
+    poolHourData,
+    token0DayData,
+    token1DayData,
+    token0HourData,
+    token1HourData,
+  ] = await Promise.all([
     intervalUpdates.updatePoolDayData(timestamp, pool, context),
     intervalUpdates.updatePoolHourData(timestamp, pool, context),
     intervalUpdates.updateTokenDayData(timestamp, token0, context),
@@ -144,6 +204,21 @@ UniswapV3Pool.Burn.handler(async ({event, context}) => {
     intervalUpdates.updateTokenHourData(timestamp, token0, context),
     intervalUpdates.updateTokenHourData(timestamp, token1, context),
   ]);
+
+  // Update burn counts for interval data
+  poolDayData.burnCount = poolDayData.burnCount + 1n;
+  poolHourData.burnCount = poolHourData.burnCount + 1n;
+  token0DayData.burnCount = token0DayData.burnCount + 1n;
+  token1DayData.burnCount = token1DayData.burnCount + 1n;
+  token0HourData.burnCount = token0HourData.burnCount + 1n;
+  token1HourData.burnCount = token1HourData.burnCount + 1n;
+
+  context.PoolDayData.set(poolDayData);
+  context.PoolHourData.set(poolHourData);
+  context.TokenDayData.set(token0DayData);
+  context.TokenDayData.set(token1DayData);
+  context.TokenHourData.set(token0HourData);
+  context.TokenHourData.set(token1HourData);
   context.Token.set(token0);
   context.Token.set(token1);
   context.Pool.set(pool);

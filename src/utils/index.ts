@@ -1,4 +1,4 @@
-import {handlerContext, Transaction} from 'generated';
+import {handlerContext, Transaction, LiquidityProvider} from 'generated';
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
 // Q128 constant for fee growth precision (Q128.128 format)
@@ -9,7 +9,6 @@ export const calculateFees = (amount: bigint, feeTier: bigint): bigint => {
   return (amount * feeTier) / 1000000n;
 };
 
-// Helper function to calculate absolute value
 export const abs = (value: bigint): bigint => {
   return value < 0n ? -value : value;
 };
@@ -53,7 +52,7 @@ export const getTicksCrossed = (oldTick: bigint, newTick: bigint): bigint[] => {
   return ticksCrossed;
 };
 
-export const loadTransaction = async (
+export const getOrCreateTransaction = async (
   txHash: string,
   blockNumber: number,
   timestamp: number,
@@ -67,16 +66,16 @@ export const loadTransaction = async (
         id: txHash,
         blockNumber: 0,
         timestamp: 0,
-        gasUsed: 0n, //needs to be moved to transaction receipt
+        gasUsed: 0n,
         gasPrice: 0n,
       };
 
   transaction.blockNumber = blockNumber;
   transaction.timestamp = timestamp;
-  transaction.gasUsed = 0n; //needs to be moved to transaction receipt
+  transaction.gasUsed = 0n;
   transaction.gasPrice = gasPrice;
 
-  context.Transaction.set(transaction as Transaction);
+  context.Transaction.set(transaction);
   return transaction as Transaction;
 };
 
@@ -110,11 +109,46 @@ export const getFeeGrowthInside = (
   return feeGrowthGlobal - feeGrowthBelow - feeGrowthAbove;
 };
 
-// Helper function to calculate tokens owed (uncollected fees)
-export const calculateTokensOwed = (
+// Helper function to calculate accrued fees (uncollected fees)
+export const calculateAccruedFees = (
   liquidity: bigint,
   feeGrowthInside: bigint,
   feeGrowthInsideLast: bigint,
 ): bigint => {
   return (liquidity * (feeGrowthInside - feeGrowthInsideLast)) / 2n ** 128n;
+};
+
+export const getOrCreateLiquidityProvider = async (
+  chainId: number,
+  poolAddress: string,
+  address: string,
+  timestamp: number,
+  blockNumber: number,
+  context: handlerContext,
+): Promise<LiquidityProvider> => {
+  const lpId = `${chainId}-${poolAddress.toLowerCase()}-${address.toLowerCase()}`;
+  const lpRO = await context.LiquidityProvider.get(lpId);
+
+  if (lpRO) return {...lpRO};
+
+  const newLP: LiquidityProvider = {
+    id: lpId,
+    fees0: 0n,
+    fees1: 0n,
+    tokensOwed0: 0n,
+    tokensOwed1: 0n,
+    collected0: 0n,
+    collected1: 0n,
+    deposited0: 0n,
+    deposited1: 0n,
+    positionCount: 0n,
+    poolCount: 0n,
+    mintCount: 0n,
+    burnCount: 0n,
+    collectCount: 0n,
+    createdAtTimestamp: timestamp,
+    createdAtBlockNumber: blockNumber,
+  };
+  context.LiquidityProvider.set(newLP);
+  return newLP;
 };

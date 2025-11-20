@@ -6,14 +6,19 @@ type Token {
   volume: BigInt!
   txCount: BigInt!
   poolCount: BigInt! @index
+  swapCount: BigInt!
+  mintCount: BigInt!
+  burnCount: BigInt!
+  positionCount: BigInt!
+  lpCount: BigInt!
   tvl: BigInt!
   tokenDayData: [TokenDayData!]! @derivedFrom(field: "token")
 }
 
 type Pool {
   id: ID! # pool address
-  createdAtTimestamp: BigInt! @index
-  createdAtBlockNumber: BigInt! @index
+  createdAtTimestamp: Int! @index
+  createdAtBlockNumber: Int! @index
   token0: Token! @index
   token1: Token! @index
   feeTier: BigInt! @index
@@ -27,14 +32,19 @@ type Pool {
   volume1: BigInt!
   fees0: BigInt!
   fees1: BigInt!
-  collectedfees0: BigInt!
-  collectedfees1: BigInt!
+  collected0: BigInt!
+  collected1: BigInt!
   tvl0: BigInt!
   tvl1: BigInt!
   # all time number of transactions
   txCount: BigInt!
-  # Fields used to help derived relationship
-  liquidityProviderCount: BigInt! # used to detect new exchanges
+  swapCount: BigInt!
+  mintCount: BigInt!
+  burnCount: BigInt!
+  collectCount: BigInt!
+  positionCount: BigInt!
+  activePositionCount: BigInt!
+  lpCount: BigInt! # number of unique liquidity providers
   # hourly snapshots of pool data
   poolHourData: [PoolHourData!]! @derivedFrom(field: "pool")
   # daily snapshots of pool data
@@ -65,10 +75,49 @@ type Tick {
   feeGrowthOutside0X128: BigInt!
   # fee growth on the other side of this tick (relative to the current tick)
   feeGrowthOutside1X128: BigInt!
+  # number of positions referencing this tick
+  positionCount: BigInt!
   # created time
-  createdAtTimestamp: BigInt! @index
+  createdAtTimestamp: Int! @index
   # created block
-  createdAtBlockNumber: BigInt! @index
+  createdAtBlockNumber: Int! @index
+}
+
+type LiquidityProvider {
+  # format: <chainId>-<pool address>-<liquidity provider address>
+  id: ID!
+  # tokens deposited in token0 across all positions
+  deposited0: BigInt!
+  # tokens deposited in token1 across all positions
+  deposited1: BigInt!
+  # tokens collected in token0 across all positions
+  collected0: BigInt!
+  # tokens collected in token1 across all positions
+  collected1: BigInt!
+  # accrued fees in token0 across all positions
+  fees0: BigInt!
+  # accrued fees in token1 across all positions
+  fees1: BigInt!
+  # tokens owed to position owner in token0 (fees + withdrawn tokens not yet collected)
+  tokensOwed0: BigInt!
+  # tokens owed to position owner in token1 (fees + withdrawn tokens not yet collected)
+  tokensOwed1: BigInt!
+  # number of positions owned by this LP
+  positionCount: BigInt!
+  # number of pools this LP has provided liquidity to
+  poolCount: BigInt!
+  # total number of mints across all positions
+  mintCount: BigInt!
+  # total number of burns across all positions
+  burnCount: BigInt!
+  # total number of collects across all positions
+  collectCount: BigInt!
+  # timestamp when LP first provided liquidity
+  createdAtTimestamp: Int! @index
+  # block number when LP first provided liquidity
+  createdAtBlockNumber: Int! @index
+  # derived relationship to positions
+  positions: [Position!]! @derivedFrom(field: "liquidityProvider")
 }
 
 type Position {
@@ -76,6 +125,8 @@ type Position {
   id: ID!
   # owner of the position
   owner: Bytes! @index
+  # liquidity provider entity
+  liquidityProvider: LiquidityProvider! @index
   # pool position is within
   pool: Pool! @index
   # allow indexing by tokens
@@ -97,32 +148,42 @@ type Position {
   # amount of token1 withdrawn
   withdrawn1: BigInt!
   # collected fees in token0
-  collectedFees0: BigInt!
+  collected0: BigInt!
   # collected fees in token1
-  collectedFees1: BigInt!
-  # tokens owed to position owner in token0
+  collected1: BigInt!
+  # accrued fees in token0
+  fees0: BigInt!
+  # accrued fees in token1
+  fees1: BigInt!
+  # tokens owed to position owner in token0 (fees + withdrawn tokens not yet collected)
   tokensOwed0: BigInt!
-  # tokens owed to position owner in token1
+  # tokens owed to position owner in token1 (fees + withdrawn tokens not yet collected)
   tokensOwed1: BigInt!
   # fee growth inside position range for token0 at last update
   feeGrowthInside0LastX128: BigInt!
   # fee growth inside position range for token1 at last update
   feeGrowthInside1LastX128: BigInt!
+  # number of times liquidity was added
+  mintCount: BigInt!
+  # number of times liquidity was removed
+  burnCount: BigInt!
+  # number of times fees were collected
+  collectCount: BigInt!
   # transaction in which position was initialized
   transaction: Transaction!
   # created time
-  createdAtTimestamp: BigInt! @index
+  createdAtTimestamp: Int! @index
   # created block
-  createdAtBlockNumber: BigInt! @index
+  createdAtBlockNumber: Int! @index
 }
 
 type Transaction {
   # txn hash
   id: ID!
   # block txn was included in
-  blockNumber: BigInt! @index
+  blockNumber: Int! @index
   # timestamp txn was confirmed
-  timestamp: BigInt! @index
+  timestamp: Int! @index
   # gas used during txn execution
   gasUsed: BigInt!
   gasPrice: BigInt!
@@ -139,7 +200,7 @@ type Mint {
   # which txn the mint was included in
   transaction: Transaction!
   # time of txn
-  timestamp: BigInt! @index
+  timestamp: Int! @index
   # pool position is within
   pool: Pool! @index
   # allow indexing by tokens
@@ -163,7 +224,7 @@ type Mint {
   # upper tick of the position
   tickUpper: BigInt! @index
   # order within the txn
-  logIndex: BigInt
+  logIndex: Int
 }
 
 type Burn {
@@ -178,7 +239,7 @@ type Burn {
   # allow indexing by tokens
   token1: Token! @index
   # need this to pull recent txns for specific token or pool
-  timestamp: BigInt! @index
+  timestamp: Int! @index
   # owner of position where liquidity was burned
   owner: Bytes @index
   # txn origin
@@ -194,7 +255,7 @@ type Burn {
   # upper tick of position
   tickUpper: BigInt! @index
   # position within the transactions
-  logIndex: BigInt
+  logIndex: Int
 }
 
 type Swap {
@@ -203,7 +264,7 @@ type Swap {
   # pointer to transaction
   transaction: Transaction!
   # timestamp of transaction
-  timestamp: BigInt! @index
+  timestamp: Int! @index
   # pool swap occured within
   pool: Pool! @index
   # allow indexing by tokens
@@ -225,7 +286,7 @@ type Swap {
   # the tick after the swap
   tick: BigInt! @index
   # index within the txn
-  logIndex: BigInt
+  logIndex: Int
 }
 
 type Collect {
@@ -234,7 +295,7 @@ type Collect {
   # pointer to txn
   transaction: Transaction!
   # timestamp of event
-  timestamp: BigInt! @index
+  timestamp: Int! @index
   # pool collect occured within
   pool: Pool! @index
   # owner of position collect was performed on
@@ -248,7 +309,7 @@ type Collect {
   # uppper tick of position
   tickUpper: BigInt! @index
   # index within the txn
-  logIndex: BigInt
+  logIndex: Int
 }
 
 # Data accumulated and condensed into day stats for each pool
@@ -275,6 +336,14 @@ type PoolDayData {
   fees1: BigInt!
   # number of transactions during period
   txCount: BigInt!
+  # number of swaps during period
+  swapCount: BigInt!
+  # number of mints during period
+  mintCount: BigInt!
+  # number of burns during period
+  burnCount: BigInt!
+  # number of collects during period
+  collectCount: BigInt!
   # opening price of token0
   openingPrice: BigInt!
   # high price of token0
@@ -309,6 +378,14 @@ type PoolHourData {
   fees1: BigInt!
   # number of transactions during period
   txCount: BigInt!
+  # number of swaps during period
+  swapCount: BigInt!
+  # number of mints during period
+  mintCount: BigInt!
+  # number of burns during period
+  burnCount: BigInt!
+  # number of collects during period
+  collectCount: BigInt!
   # opening price of token0
   openingPrice: BigInt!
   # high price of token0
@@ -332,6 +409,14 @@ type TokenDayData {
   tvl: BigInt!
   # number of transactions during period
   txCount: BigInt!
+  # number of swaps during period
+  swapCount: BigInt!
+  # number of mints during periodmkejqsw
+  mintCount: BigInt!
+  # number of burns during period
+  burnCount: BigInt!
+  # number of collects during period
+  collectCount: BigInt!
 }
 
 type TokenHourData {
@@ -347,4 +432,12 @@ type TokenHourData {
   tvl: BigInt!
   # number of transactions during period
   txCount: BigInt!
+  # number of swaps during period
+  swapCount: BigInt!
+  # number of mints during period
+  mintCount: BigInt!
+  # number of burns during period
+  burnCount: BigInt!
+  # number of collects during period
+  collectCount: BigInt!
 }

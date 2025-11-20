@@ -34,26 +34,11 @@ contracts:
             - from
 
 networks:
-  - id: 1 # Ethereum Mainnet
+  - id: 10143 # Monad Testnet
     start_block: 0
     contracts:
       - name: UniswapV3Pool
         address:
-          # USDC/WETH 0.05% - token0: USDC (0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48), token1: WETH (0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2), fee: 500
-          - 0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640
-
-          # USDC/WETH 0.30% - token0: USDC, token1: WETH, fee: 3000
-          # - 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8
-
-          # Add more pool addresses here with their metadata in comments
-          # Format: TOKEN0/TOKEN1 FEE% - token0: ADDRESS, token1: ADDRESS, fee: TIER
-
-  - id: 10 # Optimism
-    start_block: 0
-    contracts:
-      - name: UniswapV3Pool
-        address:
-          # USDC/WETH 0.05% - token0: USDC (0x7f5c764cbc14f9669b88837ca1490cca17c31607), token1: WETH (0x4200000000000000000000000000000000000006), fee: 500
-          - 0x85149247691df622eaf1a8bd0cafd40bc45154a9
-
-          # Add more pool addresses here
+          # - 0xe8781Dc41A694c6877449CEFB27cc2C0Ae9D5dbc
+          # - 0x7C2253A768E4AA90AFA9f9F246D8728064ee4c42
+          - 0xFa67c91Df3fF61562324Fe4E97F1b7dbB31B4F85
