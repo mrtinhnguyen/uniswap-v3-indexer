@@ -232,33 +232,45 @@ UniswapV3Pool.Mint.handler(async ({event, context}) => {
   const [
     poolDayData,
     poolHourData,
+    pool5MinuteData,
     token0DayData,
     token1DayData,
     token0HourData,
     token1HourData,
+    token05MinuteData,
+    token15MinuteData,
   ] = await Promise.all([
     intervalUpdates.updatePoolDayData(timestamp, pool, context),
     intervalUpdates.updatePoolHourData(timestamp, pool, context),
+    intervalUpdates.updatePool5MinuteData(timestamp, pool, context),
     intervalUpdates.updateTokenDayData(timestamp, token0, context),
     intervalUpdates.updateTokenDayData(timestamp, token1, context),
     intervalUpdates.updateTokenHourData(timestamp, token0, context),
     intervalUpdates.updateTokenHourData(timestamp, token1, context),
+    intervalUpdates.updateToken5MinuteData(timestamp, token0, context),
+    intervalUpdates.updateToken5MinuteData(timestamp, token1, context),
   ]);
 
   // Update mint counts for interval data
   poolDayData.mintCount = poolDayData.mintCount + 1n;
   poolHourData.mintCount = poolHourData.mintCount + 1n;
+  pool5MinuteData.mintCount = pool5MinuteData.mintCount + 1n;
   token0DayData.mintCount = token0DayData.mintCount + 1n;
   token1DayData.mintCount = token1DayData.mintCount + 1n;
   token0HourData.mintCount = token0HourData.mintCount + 1n;
   token1HourData.mintCount = token1HourData.mintCount + 1n;
+  token05MinuteData.mintCount = token05MinuteData.mintCount + 1n;
+  token15MinuteData.mintCount = token15MinuteData.mintCount + 1n;
 
   context.PoolDayData.set(poolDayData);
   context.PoolHourData.set(poolHourData);
+  context.Pool5MinuteData.set(pool5MinuteData);
   context.TokenDayData.set(token0DayData);
   context.TokenDayData.set(token1DayData);
   context.TokenHourData.set(token0HourData);
   context.TokenHourData.set(token1HourData);
+  context.Token5MinuteData.set(token05MinuteData);
+  context.Token5MinuteData.set(token15MinuteData);
   context.Token.set(token0);
   context.Token.set(token1);
   context.Pool.set(pool);

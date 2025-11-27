@@ -17,7 +17,7 @@ type Token {
 
 type Pool {
   id: ID! # chainId-poolAddress
-  address: Bytes!  
+  address: Bytes!
   createdAtTimestamp: Int! @index
   createdAtBlockNumber: Int! @index
   token0: Token! @index
@@ -46,6 +46,8 @@ type Pool {
   positionCount: BigInt!
   activePositionCount: BigInt!
   lpCount: BigInt! # number of unique liquidity providers
+  # 5-minute snapshots of pool data
+  pool5MinuteData: [Pool5MinuteData!]! @derivedFrom(field: "pool")
   # hourly snapshots of pool data
   poolHourData: [PoolHourData!]! @derivedFrom(field: "pool")
   # daily snapshots of pool data
@@ -315,7 +317,7 @@ type Collect {
 
 # Data accumulated and condensed into day stats for each pool
 type PoolDayData {
-  # timestamp rounded to current day by dividing by 86400
+  # <poolId>-<timestamp rounded to current day by dividing by 86400>
   id: ID!
   # unix timestamp for start of the day
   startTimestamp: Int! @index
@@ -355,9 +357,51 @@ type PoolDayData {
   close: BigInt!
 }
 
+# 5-minute stats tracker for pool
+type Pool5MinuteData {
+  # format: <pool id>-<timestamp rounded to the nearset 15 minutes>
+  id: ID!
+  # unix timestamp for start of 5-minute period
+  startTimestamp: Int! @index
+  # pointer to pool
+  pool: Pool! @index
+  # in range liquidity at end of period
+  liquidity: BigInt!
+  # current price tracker at end of period
+  sqrtPriceX96: BigInt!
+  # current tick at end of period
+  tick: BigInt!
+  # volume in token0
+  volume0: BigInt!
+  # volume in token1
+  volume1: BigInt!
+  # fees in token0
+  fees0: BigInt!
+  # fees in token1
+  fees1: BigInt!
+  # number of transactions during period
+  txCount: BigInt!
+  # number of swaps during period
+  swapCount: BigInt!
+  # number of mints during period
+  mintCount: BigInt!
+  # number of burns during period
+  burnCount: BigInt!
+  # number of collects during period
+  collectCount: BigInt!
+  # opening price of token0
+  open_: BigInt!
+  # high price of token0
+  high: BigInt!
+  # low price of token0
+  low: BigInt!
+  # close price of token0
+  close: BigInt!
+}
+
 # hourly stats tracker for pool
 type PoolHourData {
-  # format: <pool address>-<timestamp>
+  # format: <pool id>-<timestamp rounded to the current hour>
   id: ID!
   # unix timestamp for start of hour
   startTimestamp: Int! @index
@@ -413,6 +457,29 @@ type TokenDayData {
   # number of swaps during period
   swapCount: BigInt!
   # number of mints during periodmkejqsw
+  mintCount: BigInt!
+  # number of burns during period
+  burnCount: BigInt!
+  # number of collects during period
+  collectCount: BigInt!
+}
+
+type Token5MinuteData {
+  # token address concatendated with timestamp
+  id: ID!
+  # unix timestamp for start of 5-minute period
+  periodStartUnix: Int! @index
+  # pointer to token
+  token: Token! @index
+  # volume in token units
+  volume: BigInt!
+  # liquidity across all pools in token units
+  tvl: BigInt!
+  # number of transactions during period
+  txCount: BigInt!
+  # number of swaps during period
+  swapCount: BigInt!
+  # number of mints during period
   mintCount: BigInt!
   # number of burns during period
   burnCount: BigInt!

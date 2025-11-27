@@ -99,6 +99,17 @@ UniswapV3Pool.Swap.handler(async ({event, context}) => {
       ),
     );
   }
+  await Promise.all([
+    intervalUpdates.updatePoolDayData(timestamp, pool, context),
+    intervalUpdates.updatePoolHourData(timestamp, pool, context),
+    intervalUpdates.updatePool5MinuteData(timestamp, pool, context),
+    intervalUpdates.updateTokenDayData(timestamp, token0, context),
+    intervalUpdates.updateTokenDayData(timestamp, token1, context),
+    intervalUpdates.updateTokenHourData(timestamp, token0, context),
+    intervalUpdates.updateTokenHourData(timestamp, token1, context),
+    intervalUpdates.updateToken5MinuteData(timestamp, token0, context),
+    intervalUpdates.updateToken5MinuteData(timestamp, token1, context),
+  ]);
 
   // pool volume
   pool.volume0 = pool.volume0 + amount0Abs;
@@ -159,17 +170,23 @@ UniswapV3Pool.Swap.handler(async ({event, context}) => {
   const [
     poolDayData,
     poolHourData,
+    pool5MinuteData,
     token0DayData,
     token1DayData,
     token0HourData,
     token1HourData,
+    token05MinuteData,
+    token15MinuteData,
   ] = await Promise.all([
     intervalUpdates.updatePoolDayData(timestamp, pool, context),
     intervalUpdates.updatePoolHourData(timestamp, pool, context),
+    intervalUpdates.updatePool5MinuteData(timestamp, pool, context),
     intervalUpdates.updateTokenDayData(timestamp, token0, context),
     intervalUpdates.updateTokenDayData(timestamp, token1, context),
     intervalUpdates.updateTokenHourData(timestamp, token0, context),
     intervalUpdates.updateTokenHourData(timestamp, token1, context),
+    intervalUpdates.updateToken5MinuteData(timestamp, token0, context),
+    intervalUpdates.updateToken5MinuteData(timestamp, token1, context),
   ]);
 
   // update volume metrics
@@ -185,15 +202,25 @@ UniswapV3Pool.Swap.handler(async ({event, context}) => {
   poolHourData.fees1 = poolHourData.fees1 + fees1;
   poolHourData.swapCount = poolHourData.swapCount + 1n;
 
+  pool5MinuteData.volume0 = pool5MinuteData.volume0 + amount0Abs;
+  pool5MinuteData.volume1 = pool5MinuteData.volume1 + amount1Abs;
+  pool5MinuteData.fees0 = pool5MinuteData.fees0 + fees0;
+  pool5MinuteData.fees1 = pool5MinuteData.fees1 + fees1;
+  pool5MinuteData.swapCount = pool5MinuteData.swapCount + 1n;
+
   token0DayData.volume = token0DayData.volume + amount0Abs;
   token0DayData.swapCount = token0DayData.swapCount + 1n;
   token0HourData.volume = token0HourData.volume + amount0Abs;
   token0HourData.swapCount = token0HourData.swapCount + 1n;
+  token05MinuteData.volume = token05MinuteData.volume + amount0Abs;
+  token05MinuteData.swapCount = token05MinuteData.swapCount + 1n;
 
   token1DayData.volume = token1DayData.volume + amount1Abs;
   token1DayData.swapCount = token1DayData.swapCount + 1n;
   token1HourData.volume = token1HourData.volume + amount1Abs;
   token1HourData.swapCount = token1HourData.swapCount + 1n;
+  token15MinuteData.volume = token15MinuteData.volume + amount1Abs;
+  token15MinuteData.swapCount = token15MinuteData.swapCount + 1n;
 
   context.Swap.set(swap);
   context.TokenDayData.set(token0DayData);

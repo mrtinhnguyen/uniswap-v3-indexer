@@ -192,33 +192,45 @@ UniswapV3Pool.Burn.handler(async ({event, context}) => {
   const [
     poolDayData,
     poolHourData,
+    pool5MinuteData,
     token0DayData,
     token1DayData,
     token0HourData,
     token1HourData,
+    token05MinuteData,
+    token15MinuteData,
   ] = await Promise.all([
     intervalUpdates.updatePoolDayData(timestamp, pool, context),
     intervalUpdates.updatePoolHourData(timestamp, pool, context),
+    intervalUpdates.updatePool5MinuteData(timestamp, pool, context),
     intervalUpdates.updateTokenDayData(timestamp, token0, context),
     intervalUpdates.updateTokenDayData(timestamp, token1, context),
     intervalUpdates.updateTokenHourData(timestamp, token0, context),
     intervalUpdates.updateTokenHourData(timestamp, token1, context),
+    intervalUpdates.updateToken5MinuteData(timestamp, token0, context),
+    intervalUpdates.updateToken5MinuteData(timestamp, token1, context),
   ]);
 
   // Update burn counts for interval data
   poolDayData.burnCount = poolDayData.burnCount + 1n;
   poolHourData.burnCount = poolHourData.burnCount + 1n;
+  pool5MinuteData.burnCount = pool5MinuteData.burnCount + 1n;
   token0DayData.burnCount = token0DayData.burnCount + 1n;
   token1DayData.burnCount = token1DayData.burnCount + 1n;
   token0HourData.burnCount = token0HourData.burnCount + 1n;
   token1HourData.burnCount = token1HourData.burnCount + 1n;
+  token05MinuteData.burnCount = token05MinuteData.burnCount + 1n;
+  token15MinuteData.burnCount = token15MinuteData.burnCount + 1n;
 
   context.PoolDayData.set(poolDayData);
   context.PoolHourData.set(poolHourData);
+  context.Pool5MinuteData.set(pool5MinuteData);
   context.TokenDayData.set(token0DayData);
   context.TokenDayData.set(token1DayData);
   context.TokenHourData.set(token0HourData);
   context.TokenHourData.set(token1HourData);
+  context.Token5MinuteData.set(token05MinuteData);
+  context.Token5MinuteData.set(token15MinuteData);
   context.Token.set(token0);
   context.Token.set(token1);
   context.Pool.set(pool);
