@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: uniswap-v3-indexer
+    runtime: node
+    plan: free  # Có thể đổi thành starter nếu muốn chạy 24/7 (free tier sẽ sleep sau 15 phút)
+    region: singapore  # Chọn region gần nhất với bạn
+    buildCommand: pnpm install && pnpm run codegen
+    startCommand: pnpm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Lưu ý: Không set RPC URL ở đây vì lý do bảo mật
+      # Thêm các biến môi trường RPC URL trong Render Dashboard:
+      # - Settings > Environment > Add Environment Variable
+      # - Ví dụ: RPC_URL_8453 = https://mainnet.base.org
+    healthCheckPath: /health
+    autoDeploy: true  # Tự động deploy khi có push lên branch chính
+    branch: main  # Hoặc master, tùy branch chính của bạn

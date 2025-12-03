@@ -1,0 +1,6 @@
+# Danh sách địa chỉ pool Uniswap V3 trên Base Mainnet
+# Mỗi dòng là một địa chỉ pool (có thể có comment sau dấu #)
+# File này có thể được cập nhật bất cứ lúc nào, sau đó chạy: pnpm run update-config
+
+0x16905890A1D02b6F824387419319Bf4188B961b0  # Pool mẫu
+

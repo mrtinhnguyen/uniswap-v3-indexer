@@ -1,9 +1,7 @@
-# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
 name: uni_v3
 rollback_on_reorg: true
 unordered_multichain_mode: true
 preload_handlers: true
-
 contracts:
   - name: UniswapV3Pool
     handler: src/EventHandlers.ts
@@ -32,13 +30,10 @@ contracts:
             - hash
             - gasPrice
             - from
-
 networks:
-  - id: 10143 # Monad Testnet
+  - id: 8453
     start_block: 0
     contracts:
       - name: UniswapV3Pool
         address:
-          # - 0xe8781Dc41A694c6877449CEFB27cc2C0Ae9D5dbc
-          # - 0x7C2253A768E4AA90AFA9f9F246D8728064ee4c42
-          - 0xFa67c91Df3fF61562324Fe4E97F1b7dbB31B4F85
+          - "0x16905890A1D02b6F824387419319Bf4188B961b0"

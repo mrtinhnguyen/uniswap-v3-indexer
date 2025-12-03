@@ -5,12 +5,21 @@
     "clean": "gts clean",
     "mocha": "ts-mocha test/**/*.ts",
     "codegen": "envio codegen",
-    "dev": "envio dev",
+    "dev": "node scripts/update-config.js && envio dev",
     "test": "pnpm mocha",
-    "start": "envio start",
+    "start": "node scripts/update-config.js && envio start",
+    "start:full": "node scripts/start-with-setup.js",
+    "update-config": "node scripts/update-config.js",
+    "watch-pools": "node scripts/watch-pools.js",
+    "check-env": "node scripts/check-env.js",
+    "setup-db-env": "node scripts/setup-db-env.js",
+    "db-setup": "cd generated && pnpm run db-setup",
+    "db-up": "cd generated && pnpm run db-up",
     "lint": "gts lint",
     "fix": "gts fix",
-    "posttest": "pnpm run lint"
+    "posttest": "pnpm run lint",
+    "render:build": "pnpm install && pnpm run codegen",
+    "render:start": "pnpm run start"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
@@ -26,6 +35,7 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "envio": "^2.32.2",
+    "js-yaml": "^4.1.0",
     "viem": "^2.39.2"
   },
   "optionalDependencies": {
