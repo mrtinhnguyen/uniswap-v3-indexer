@@ -8,6 +8,13 @@ Hệ thống monitoring đã được tích hợp tự động vào indexer. Khi
 2. ✅ **Monitoring tự động start** - Khi indexer khởi động, monitoring service sẽ tự động chạy
 3. ✅ **Telegram alerts** - Tự động gửi alerts khi có events
 
+## ⚠️ Lưu ý về Memory Limit
+
+Render free tier có giới hạn **512MB memory**. Nếu gặp lỗi "Ran out of memory":
+- ✅ Đã tối ưu build command với `NODE_OPTIONS="--max-old-space-size=512"`
+- ✅ Nếu vẫn lỗi, cân nhắc upgrade lên **Starter plan** ($7/tháng) với 512MB-2GB memory
+- ✅ Hoặc tối ưu thêm bằng cách giảm dependencies không cần thiết
+
 ## 🚀 Deploy lên Render
 
 ### Bước 1: Setup Telegram Bot (Nếu chưa có)

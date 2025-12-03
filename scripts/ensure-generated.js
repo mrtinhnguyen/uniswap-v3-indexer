@@ -13,9 +13,12 @@ const generatedDir = path.join(__dirname, '..', 'generated');
 if (!fs.existsSync(generatedDir)) {
   console.log('⚠️  Generated directory not found. Running codegen...');
   try {
+    // Set memory limit để tránh out of memory
+    const env = {...process.env, NODE_OPTIONS: '--max-old-space-size=512'};
     execSync('pnpm run codegen', {
       cwd: path.join(__dirname, '..'),
       stdio: 'inherit',
+      env,
     });
     console.log('✅ Codegen completed successfully');
   } catch (error) {
@@ -45,9 +48,12 @@ for (const file of requiredFiles) {
 if (!allFilesExist) {
   console.log('⚠️  Some required files are missing. Running codegen again...');
   try {
+    // Set memory limit để tránh out of memory
+    const env = {...process.env, NODE_OPTIONS: '--max-old-space-size=512'};
     execSync('pnpm run codegen', {
       cwd: path.join(__dirname, '..'),
       stdio: 'inherit',
+      env,
     });
     console.log('✅ Codegen completed successfully');
   } catch (error) {
