@@ -5,7 +5,7 @@ services:
     plan: free  # Có thể đổi thành starter nếu muốn chạy 24/7 (free tier sẽ sleep sau 15 phút)
     region: singapore  # Chọn region gần nhất với bạn
     buildCommand: corepack enable && corepack prepare pnpm@latest --activate && pnpm install --frozen-lockfile && NODE_OPTIONS="--max-old-space-size=512" pnpm run codegen && node scripts/update-config.js
-    startCommand: pnpm run start
+    startCommand: NODE_OPTIONS='--max-old-space-size=2048' pnpm run start
     envVars:
       - key: NODE_ENV
         value: production
