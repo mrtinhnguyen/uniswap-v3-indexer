@@ -38,9 +38,6 @@
     "js-yaml": "^4.1.0",
     "viem": "^2.39.2"
   },
-  "optionalDependencies": {
-    "generated": "./generated"
-  },
   "engines": {
     "node": ">=18.0.0",
     "bun": ">=1.0.0"

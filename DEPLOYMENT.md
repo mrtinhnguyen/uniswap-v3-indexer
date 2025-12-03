@@ -109,9 +109,10 @@ Render hỗ trợ tốt cho long-running processes và có free tier.
    - New > Blueprint (nếu có file `render.yaml`) hoặc New > Web Service
    - Connect GitHub repo của bạn
 
-2. **Render sẽ tự động detect file `render.yaml`**:
-   - File `render.yaml` đã được tạo sẵn trong repo
-   - Render sẽ tự động đọc cấu hình từ file này
+       2. **Render sẽ tự động detect file `render.yaml`**:
+          - File `render.yaml` đã được tạo sẵn trong repo
+          - Render sẽ tự động đọc cấu hình từ file này
+          - **Lưu ý**: Render có thể dùng yarn mặc định, nhưng buildCommand trong render.yaml sẽ đảm bảo dùng pnpm
 
 3. **Cấu hình Environment Variables**:
    - Vào Service Settings > Environment
@@ -187,9 +188,34 @@ Render hỗ trợ tốt cho long-running processes và có free tier.
 
 ## 🐛 Troubleshooting
 
+### Lỗi: "Package 'generated' refers to a non-existing file"
+
+**Nguyên nhân**: Render đang dùng yarn và thư mục `generated` chưa tồn tại khi install.
+
+**Giải pháp**:
+1. ✅ Đã fix: Xóa `optionalDependencies` trong `package.json` (không cần thiết)
+2. ✅ Đã fix: BuildCommand trong `render.yaml` sẽ chạy `codegen` sau `install` để tạo thư mục `generated`
+3. Nếu vẫn lỗi, đảm bảo buildCommand là:
+   ```yaml
+   buildCommand: corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm run codegen
+   ```
+
+### Lỗi: "yarn install" thay vì pnpm
+
+**Nguyên nhân**: Render dùng yarn mặc định.
+
+**Giải pháp**: 
+- BuildCommand trong `render.yaml` đã được cấu hình để enable pnpm
+- Nếu vẫn lỗi, thêm vào Render Dashboard:
+  - Settings > Build & Deploy > Build Command: 
+    ```
+    corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm run codegen
+    ```
+
 ### GitHub Action không chạy
 - Kiểm tra file `.github/workflows/update-config.yml` có đúng format không
 - Kiểm tra GitHub Actions permissions trong repo settings
+- Đảm bảo workflow có trigger đúng (push paths: pools.txt)
 
 ### Config không được cập nhật
 - Kiểm tra logs của GitHub Action
@@ -199,4 +225,5 @@ Render hỗ trợ tốt cho long-running processes và có free tier.
 ### Deploy không trigger sau khi config update
 - Kiểm tra platform có auto-deploy enabled không
 - Kiểm tra commit message có `[skip ci]` không (sẽ skip một số CI/CD)
+- Đảm bảo Render có auto-deploy = true trong render.yaml
 

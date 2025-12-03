@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free  # Có thể đổi thành starter nếu muốn chạy 24/7 (free tier sẽ sleep sau 15 phút)
     region: singapore  # Chọn region gần nhất với bạn
-    buildCommand: pnpm install && pnpm run codegen
+    buildCommand: corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm run codegen
     startCommand: pnpm run start
     envVars:
       - key: NODE_ENV
