@@ -74,14 +74,13 @@ Railway sẽ tự động detect từ:
 
 Railway sẽ tự động chạy:
 ```
-curl -fsSL https://get.pnpm.io/install.sh | sh -
-→ export PNPM_HOME="/root/.local/share/pnpm" && export PATH="$PNPM_HOME:$PATH"
+npm install -g pnpm@latest
 → pnpm install --no-frozen-lockfile
 → pnpm run codegen
 → node scripts/update-config.js
 ```
 
-**Lưu ý**: Dùng script install trực tiếp từ pnpm.io thay vì corepack để tránh lỗi signature verification.
+**Lưu ý**: Dùng `npm install -g pnpm` thay vì script install để tránh lỗi shell detection trong Docker build context.
 
 **Lưu ý**: Dùng `--no-frozen-lockfile` để tránh lỗi khi lockfile không khớp với package.json (ví dụ: đã xóa `optionalDependencies`).
 
@@ -156,9 +155,12 @@ Nếu bạn có GitHub Actions để update `config.yaml`:
 ### Build failed
 
 **Lỗi: "Cannot find matching keyid" hoặc "corepack signature verification failed"**
-- ✅ **Đã fix**: `nixpacks.toml` dùng script install trực tiếp từ pnpm.io
-- Corepack có thể gặp lỗi signature verification, nên dùng `curl | sh` để install pnpm trực tiếp
-- Script này sẽ tự động setup PATH và pnpm environment
+- ✅ **Đã fix**: `nixpacks.toml` dùng `npm install -g pnpm` thay vì corepack
+- Corepack có thể gặp lỗi signature verification
+
+**Lỗi: "Could not infer shell type" hoặc "ERR_PNPM_UNKNOWN_SHELL"**
+- ✅ **Đã fix**: `nixpacks.toml` dùng `npm install -g pnpm` thay vì script install
+- Script install từ pnpm.io cần SHELL environment variable, có thể không có trong Docker build
 
 **Lỗi: "Node.js 18.x has reached End-Of-Life"**
 - ✅ **Đã fix**: `nixpacks.toml` đã update lên Node.js 20

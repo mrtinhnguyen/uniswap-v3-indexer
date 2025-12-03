@@ -1,11 +1,9 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "pnpm"]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = [
-  "curl -fsSL https://get.pnpm.io/install.sh | sh -",
-  "export PNPM_HOME=\"/root/.local/share/pnpm\"",
-  "export PATH=\"$PNPM_HOME:$PATH\"",
+  "npm install -g pnpm@latest",
   "pnpm install --no-frozen-lockfile",
   "pnpm run codegen",
   "node scripts/update-config.js"
