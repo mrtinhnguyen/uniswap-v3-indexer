@@ -7,6 +7,7 @@
 - ✅ **Dễ cấu hình**: Chỉ cần connect repo
 - ✅ **Environment variables**: Dễ quản lý
 - ✅ **Logs real-time**: Xem logs trực tiếp
+- ✅ **Node.js 20**: Sử dụng Node.js 20 (LTS) thay vì Node.js 18 (EOL)
 
 ## 📋 Bước 1: Tạo Railway Account
 
@@ -147,8 +148,12 @@ Nếu bạn có GitHub Actions để update `config.yaml`:
 
 ### Build failed
 
+**Lỗi: "Node.js 18.x has reached End-Of-Life"**
+- ✅ **Đã fix**: `nixpacks.toml` đã update lên Node.js 20
+- Railway sẽ tự động dùng Node.js 20 từ `nixpacks.toml`
+
 **Lỗi: "Cannot install with frozen-lockfile" hoặc "lockfile is not up to date"**
-- ✅ **Đã fix**: `railway.json` không dùng `--frozen-lockfile` nữa
+- ✅ **Đã fix**: `nixpacks.toml` không dùng `--frozen-lockfile`
 - Nếu vẫn lỗi, update lockfile local: `pnpm install` và commit `pnpm-lock.yaml` mới
 - Hoặc xóa `pnpm-lock.yaml` và để Railway tự tạo lại
 
