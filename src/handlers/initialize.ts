@@ -3,6 +3,21 @@ import {updatePoolDayData, updatePoolHourData} from '../utils/intervalUpdates';
 import {getPoolDataEffect} from '../effects/getPoolData';
 import {getTokenMetadataEffect} from '../effects/getTokenMetadata';
 
+// Auto-start monitoring service khi pool đầu tiên được initialize
+let monitoringStarted = false;
+async function startMonitoringIfNeeded(context: handlerContext) {
+  if (monitoringStarted) return;
+  monitoringStarted = true;
+  
+  try {
+    const {startMonitoringService} = require('../services/monitoring-service');
+    await startMonitoringService(context);
+  } catch (error) {
+    // Ignore nếu monitoring service chưa được setup
+    console.log('Monitoring service not available:', error.message);
+  }
+}
+
 export const getOrCreateToken = async (
   tokenId: string,
   tokenAddress: string,
@@ -38,6 +53,8 @@ export const getOrCreateToken = async (
 };
 
 UniswapV3Pool.Initialize.handler(async ({event, context}) => {
+  // Auto-start monitoring service (chỉ một lần)
+  await startMonitoringIfNeeded(context);
   const poolId = `${event.chainId}-${event.srcAddress.toLowerCase()}`;
 
   console.log(`Creating new pool: ${poolId}`);

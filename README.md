@@ -6,6 +6,15 @@
 
 Dự án này là một indexer cho Uniswap V3 được xây dựng bằng [Envio](https://www.envio.dev/), một framework để index dữ liệu blockchain. Indexer này theo dõi và lưu trữ tất cả các sự kiện từ các pool Uniswap V3, bao gồm swaps, mints, burns, collects, và các vị trí thanh khoản.
 
+### 🎯 Mục đích sử dụng
+
+Xem file [USE_CASES.md](./USE_CASES.md) để biết chi tiết về:
+- **Nếu bạn có pool riêng**: Theo dõi performance, quản lý positions, tối ưu strategies
+- **Nếu bạn monitor pool người khác**: Market research, arbitrage opportunities, competitor analysis
+- **Use cases nâng cao**: Trading bots, portfolio management, analytics platforms
+
+**Tóm tắt**: Indexer cung cấp dữ liệu chi tiết và lịch sử để bạn có thể đưa ra quyết định tốt hơn, tự động hóa processes, và tối ưu strategies.
+
 ## ✨ Tính năng chính
 
 - **Lưu trữ chính xác**: Sử dụng BigInt với độ chính xác giống hệt như trên blockchain, thay vì BigDecimal
@@ -14,6 +23,8 @@ Dự án này là một indexer cho Uniswap V3 được xây dựng bằng [Envi
 - **Trường dữ liệu bổ sung**: Thêm các trường như `swapCount`, `positionsCount`, `lpCount`, v.v. để dễ dàng truy vấn
 - **Hỗ trợ đa chain**: Có thể index nhiều blockchain cùng lúc
 - **Dữ liệu thời gian thực**: Tự động cập nhật dữ liệu theo thời gian thực từ blockchain
+- **📱 Telegram Alerts**: Nhận thông báo real-time qua Telegram Bot về pool performance, whale activity, và position fees (xem [MONITORING.md](./MONITORING.md))
+- **🔄 Tự động hóa hoàn toàn**: Pools tự động sync từ `pools.txt`, monitoring tự động start, alerts tự động gửi (xem [DEPLOYMENT_MONITORING.md](./DEPLOYMENT_MONITORING.md))
 
 ## 🔧 Yêu cầu hệ thống
 

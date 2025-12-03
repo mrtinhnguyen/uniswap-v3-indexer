@@ -1,0 +1,23 @@
+{
+  "telegram": {
+    "botToken": "8543954707:AAFcX0pw2Y3Sn5BWtaJAvSQEoOSbsok5ZU4",
+    "chatId": "-5080266795"
+  },
+  "alerts": {
+    "enabled": true,
+    "thresholds": {
+      "minVolume": 1000000,
+      "minFees": 10000,
+      "minSwapAmount": 100000,
+      "feesThreshold": 1000
+    },
+    "intervals": {
+      "summary": "daily",
+      "checkInterval": 300
+    }
+  },
+  "pools": [
+    "0x16905890A1D02b6F824387419319Bf4188B961b0"
+  ],
+  "positions": []
+}

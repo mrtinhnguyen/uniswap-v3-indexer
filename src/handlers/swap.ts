@@ -232,4 +232,15 @@ UniswapV3Pool.Swap.handler(async ({event, context}) => {
   context.Pool.set(pool);
   context.Token.set(token0);
   context.Token.set(token1);
+
+  // Monitor swap for whale detection (nếu monitoring service đã được khởi động)
+  try {
+    const {getMonitor} = require('../services/monitoring-service');
+    const monitor = getMonitor();
+    if (monitor) {
+      await monitor.monitorSwap(swap);
+    }
+  } catch (error) {
+    // Ignore nếu monitoring service chưa được setup
+  }
 });

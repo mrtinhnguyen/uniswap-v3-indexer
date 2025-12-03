@@ -4,15 +4,22 @@ services:
     runtime: node
     plan: free  # Có thể đổi thành starter nếu muốn chạy 24/7 (free tier sẽ sleep sau 15 phút)
     region: singapore  # Chọn region gần nhất với bạn
-    buildCommand: corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm run codegen
+    buildCommand: corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm run codegen && node scripts/update-config.js
     startCommand: pnpm run start
     envVars:
       - key: NODE_ENV
         value: production
-      # Lưu ý: Không set RPC URL ở đây vì lý do bảo mật
-      # Thêm các biến môi trường RPC URL trong Render Dashboard:
+      # Lưu ý: Không set RPC URL và Telegram ở đây vì lý do bảo mật
+      # Thêm các biến môi trường trong Render Dashboard:
       # - Settings > Environment > Add Environment Variable
-      # - Ví dụ: RPC_URL_8453 = https://mainnet.base.org
+      # 
+      # BẮT BUỘC:
+      # - RPC_URL_8453 = https://mainnet.base.org
+      # - ENVIO_PG_HOST, ENVIO_PG_PORT, ENVIO_PG_USER, ENVIO_POSTGRES_PASSWORD, ENVIO_PG_DATABASE
+      #
+      # TÙY CHỌN (cho monitoring):
+      # - TELEGRAM_BOT_TOKEN = your_bot_token
+      # - TELEGRAM_CHAT_ID = your_chat_id
     healthCheckPath: /health
     autoDeploy: true  # Tự động deploy khi có push lên branch chính
     branch: main  # Hoặc master, tùy branch chính của bạn

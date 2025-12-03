@@ -114,6 +114,19 @@ function main() {
     if (updated) {
       writeConfig(config);
       console.log('\n✅ Hoàn thành! Bạn có thể restart indexer để áp dụng thay đổi.');
+      
+      // Tự động sync alerts config
+      try {
+        const {execSync} = require('child_process');
+        console.log('\n📱 Đang sync alerts config từ pools.txt...');
+        execSync('node scripts/update-alerts-config.js', {
+          cwd: path.join(__dirname, '..'),
+          stdio: 'inherit',
+        });
+      } catch (error) {
+        // Ignore nếu script không tồn tại hoặc có lỗi
+        console.log('⚠️  Không thể sync alerts config (có thể chưa setup)');
+      }
     } else {
       console.error('\n❌ Không thể cập nhật config');
       process.exit(1);
