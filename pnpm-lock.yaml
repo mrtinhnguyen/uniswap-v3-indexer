@@ -48,10 +48,6 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
-    optionalDependencies:
-      generated:
-        specifier: ./generated
-        version: link:generated
 
   generated:
     dependencies:

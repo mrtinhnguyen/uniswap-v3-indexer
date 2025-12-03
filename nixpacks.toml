@@ -3,9 +3,10 @@ nixPkgs = ["nodejs_20", "pnpm"]
 
 [phases.install]
 cmds = [
-  "corepack enable",
-  "corepack prepare pnpm@latest --activate",
-  "pnpm install",
+  "curl -fsSL https://get.pnpm.io/install.sh | sh -",
+  "export PNPM_HOME=\"/root/.local/share/pnpm\"",
+  "export PATH=\"$PNPM_HOME:$PATH\"",
+  "pnpm install --no-frozen-lockfile",
   "pnpm run codegen",
   "node scripts/update-config.js"
 ]

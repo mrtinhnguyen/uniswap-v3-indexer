@@ -24,7 +24,8 @@ Xem file [USE_CASES.md](./USE_CASES.md) để biết chi tiết về:
 - **Hỗ trợ đa chain**: Có thể index nhiều blockchain cùng lúc
 - **Dữ liệu thời gian thực**: Tự động cập nhật dữ liệu theo thời gian thực từ blockchain
 - **📱 Telegram Alerts**: Nhận thông báo real-time qua Telegram Bot về pool performance, whale activity, và position fees (xem [MONITORING.md](./MONITORING.md))
-- **🔄 Tự động hóa hoàn toàn**: Pools tự động sync từ `pools.txt`, monitoring tự động start, alerts tự động gửi (xem [DEPLOYMENT_MONITORING.md](./DEPLOYMENT_MONITORING.md))
+- **🔄 Tự động hóa hoàn toàn**: Pools tự động sync từ `pools.txt`, monitoring tự động start, alerts tự động gửi
+- **🚀 Deploy dễ dàng**: Hỗ trợ Render, Railway, và VPS (xem [DEPLOYMENT.md](./DEPLOYMENT.md), [DEPLOYMENT_MONITORING.md](./DEPLOYMENT_MONITORING.md), [DEPLOYMENT_RAILWAY.md](./DEPLOYMENT_RAILWAY.md), [DEPLOYMENT_VPS.md](./DEPLOYMENT_VPS.md))
 
 ## 🔧 Yêu cầu hệ thống
 

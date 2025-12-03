@@ -74,13 +74,16 @@ Railway sẽ tự động detect từ:
 
 Railway sẽ tự động chạy:
 ```
-corepack enable && corepack prepare pnpm@latest --activate
-→ pnpm install
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+→ export PNPM_HOME="/root/.local/share/pnpm" && export PATH="$PNPM_HOME:$PATH"
+→ pnpm install --no-frozen-lockfile
 → pnpm run codegen
 → node scripts/update-config.js
 ```
 
-**Lưu ý**: Không dùng `--frozen-lockfile` để tránh lỗi khi lockfile không khớp với package.json.
+**Lưu ý**: Dùng script install trực tiếp từ pnpm.io thay vì corepack để tránh lỗi signature verification.
+
+**Lưu ý**: Dùng `--no-frozen-lockfile` để tránh lỗi khi lockfile không khớp với package.json (ví dụ: đã xóa `optionalDependencies`).
 
 ### Start Command:
 
@@ -100,8 +103,12 @@ pnpm run start
 
 Vào **Settings** → **Build & Deploy** → **Build Command**:
 ```
-corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm run codegen && node scripts/update-config.js
+corepack enable && corepack prepare pnpm@latest --activate && pnpm install --no-frozen-lockfile && pnpm run codegen && node scripts/update-config.js
 ```
+
+**Lưu ý**: Nếu Nixpacks vẫn dùng `--frozen-lockfile` mặc định, bạn có thể:
+1. Set build command trong Railway Dashboard (override `nixpacks.toml`)
+2. Hoặc update `pnpm-lock.yaml` local và commit lại
 
 ### Thay đổi Start Command:
 
@@ -148,18 +155,26 @@ Nếu bạn có GitHub Actions để update `config.yaml`:
 
 ### Build failed
 
+**Lỗi: "Cannot find matching keyid" hoặc "corepack signature verification failed"**
+- ✅ **Đã fix**: `nixpacks.toml` dùng script install trực tiếp từ pnpm.io
+- Corepack có thể gặp lỗi signature verification, nên dùng `curl | sh` để install pnpm trực tiếp
+- Script này sẽ tự động setup PATH và pnpm environment
+
 **Lỗi: "Node.js 18.x has reached End-Of-Life"**
 - ✅ **Đã fix**: `nixpacks.toml` đã update lên Node.js 20
 - Railway sẽ tự động dùng Node.js 20 từ `nixpacks.toml`
 
 **Lỗi: "Cannot install with frozen-lockfile" hoặc "lockfile is not up to date"**
-- ✅ **Đã fix**: `nixpacks.toml` không dùng `--frozen-lockfile`
-- Nếu vẫn lỗi, update lockfile local: `pnpm install` và commit `pnpm-lock.yaml` mới
-- Hoặc xóa `pnpm-lock.yaml` và để Railway tự tạo lại
+- ✅ **Đã fix**: `nixpacks.toml` dùng `--no-frozen-lockfile` để tự động update lockfile
+- Nếu vẫn lỗi, có thể do Nixpacks auto-detection override. Thử:
+  1. Update lockfile local: `pnpm install` và commit `pnpm-lock.yaml` mới
+  2. Hoặc xóa `pnpm-lock.yaml` và để Railway tự tạo lại
+  3. Hoặc set trong Railway Dashboard: Build Command = `pnpm install --no-frozen-lockfile && pnpm run codegen && node scripts/update-config.js`
 
-**Lỗi: "Out of memory"**
-- Railway free tier có 512MB memory
-- Nếu vẫn lỗi, upgrade lên Pro plan ($5/tháng)
+**Lỗi: "JavaScript heap out of memory" hoặc "Out of memory"**
+- ✅ **Đã fix**: `nixpacks.toml` và `railway.json` đã set `NODE_OPTIONS='--max-old-space-size=2048'`
+- Railway free tier có 512MB memory, nhưng Node.js heap có thể được set cao hơn
+- Nếu vẫn lỗi, upgrade lên Pro plan ($5/tháng) hoặc tăng memory limit
 
 **Lỗi: "Generated directory not found"**
 - Đảm bảo `codegen` chạy trong build command

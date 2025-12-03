@@ -12,11 +12,13 @@
 
 ## 🚀 Giải pháp đề xuất
 
-### 1. Railway (Khuyến nghị)
+### 1. Railway (Khuyến nghị) ⭐
 - Hỗ trợ long-running processes
 - Tự động deploy từ GitHub
-- Free tier có sẵn
+- Free tier tốt ($5 credit/tháng, không sleep)
 - Dễ cấu hình
+- Có thể tạo PostgreSQL database tự động
+- **Xem hướng dẫn chi tiết**: [DEPLOYMENT_RAILWAY.md](./DEPLOYMENT_RAILWAY.md)
 
 ### 2. Render
 - Tương tự Railway
@@ -27,9 +29,10 @@
 - Hỗ trợ tốt cho Node.js apps
 - Có free trial
 
-### 4. VPS (Vultr, Linode, AWS EC2)
+### 4. VPS (Vultr, Linode, AWS EC2, DigitalOcean)
 - Full control
 - Cần tự quản lý server
+- **Xem hướng dẫn chi tiết**: [DEPLOYMENT_VPS.md](./DEPLOYMENT_VPS.md) (CentOS 7)
 
 ## 📋 Tự động cập nhật pools.txt từ GitHub
 
