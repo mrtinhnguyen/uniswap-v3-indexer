@@ -3,10 +3,7 @@ nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = [
-  "npm install -g pnpm@latest",
-  "pnpm install --no-frozen-lockfile",
-  "pnpm run codegen",
-  "node scripts/update-config.js"
+  "npm install -g pnpm@latest && export PATH=\"/usr/local/bin:$PATH\" && pnpm install --no-frozen-lockfile && pnpm run codegen && node scripts/update-config.js"
 ]
 
 [start]

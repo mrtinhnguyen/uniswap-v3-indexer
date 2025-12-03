@@ -74,13 +74,12 @@ Railway sẽ tự động detect từ:
 
 Railway sẽ tự động chạy:
 ```
-npm install -g pnpm@latest
-→ pnpm install --no-frozen-lockfile
-→ pnpm run codegen
-→ node scripts/update-config.js
+npm install -g pnpm@latest && export PATH="/usr/local/bin:$PATH" && pnpm install --no-frozen-lockfile && pnpm run codegen && node scripts/update-config.js
 ```
 
-**Lưu ý**: Dùng `npm install -g pnpm` thay vì script install để tránh lỗi shell detection trong Docker build context.
+**Lưu ý**: 
+- Dùng `npm install -g pnpm` thay vì script install để tránh lỗi shell detection
+- Combine tất cả lệnh thành một dòng để đảm bảo PATH được persist giữa các lệnh
 
 **Lưu ý**: Dùng `--no-frozen-lockfile` để tránh lỗi khi lockfile không khớp với package.json (ví dụ: đã xóa `optionalDependencies`).
 
@@ -100,14 +99,17 @@ pnpm run start
 
 ### Thay đổi Build Command:
 
+Nếu Railway vẫn dùng cấu hình cũ (ví dụ: script install pnpm), bạn có thể override trong Dashboard:
+
 Vào **Settings** → **Build & Deploy** → **Build Command**:
 ```
-corepack enable && corepack prepare pnpm@latest --activate && pnpm install --no-frozen-lockfile && pnpm run codegen && node scripts/update-config.js
+npm install -g pnpm@latest && pnpm install --no-frozen-lockfile && pnpm run codegen && node scripts/update-config.js
 ```
 
-**Lưu ý**: Nếu Nixpacks vẫn dùng `--frozen-lockfile` mặc định, bạn có thể:
-1. Set build command trong Railway Dashboard (override `nixpacks.toml`)
-2. Hoặc update `pnpm-lock.yaml` local và commit lại
+**Lưu ý**: 
+- Nếu Nixpacks vẫn dùng `--frozen-lockfile` mặc định, set build command trong Railway Dashboard
+- Hoặc update `pnpm-lock.yaml` local và commit lại
+- **Clear cache**: Nếu Railway vẫn dùng cấu hình cũ, vào **Settings** → **Build & Deploy** → **Clear Build Cache** và redeploy
 
 ### Thay đổi Start Command:
 
@@ -158,9 +160,18 @@ Nếu bạn có GitHub Actions để update `config.yaml`:
 - ✅ **Đã fix**: `nixpacks.toml` dùng `npm install -g pnpm` thay vì corepack
 - Corepack có thể gặp lỗi signature verification
 
+**Lỗi: "pnpm: command not found" sau khi install**
+- ✅ **Đã fix**: `nixpacks.toml` combine tất cả lệnh thành một dòng và export PATH
+- Mỗi `RUN` command trong Docker là shell riêng, PATH không persist giữa các lệnh
+- Giải pháp: Combine tất cả lệnh với `&&` và export PATH trong cùng một command
+
 **Lỗi: "Could not infer shell type" hoặc "ERR_PNPM_UNKNOWN_SHELL"**
 - ✅ **Đã fix**: `nixpacks.toml` dùng `npm install -g pnpm` thay vì script install
 - Script install từ pnpm.io cần SHELL environment variable, có thể không có trong Docker build
+- **Nếu vẫn lỗi**: Railway có thể đang cache cấu hình cũ. Thử:
+  1. Clear build cache: **Settings** → **Build & Deploy** → **Clear Build Cache**
+  2. Hoặc override build command trong Dashboard: `npm install -g pnpm@latest && export PATH="/usr/local/bin:$PATH" && pnpm install --no-frozen-lockfile && pnpm run codegen && node scripts/update-config.js`
+  3. Hoặc xóa service và tạo lại để force rebuild từ đầu
 
 **Lỗi: "Node.js 18.x has reached End-Of-Life"**
 - ✅ **Đã fix**: `nixpacks.toml` đã update lên Node.js 20
