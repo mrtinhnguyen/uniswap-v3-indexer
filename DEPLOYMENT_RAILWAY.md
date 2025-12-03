@@ -65,7 +65,8 @@ Railway có thể tự động tạo PostgreSQL database:
 ## 📋 Bước 5: Cấu hình Build & Deploy
 
 Railway sẽ tự động detect từ:
-- `railway.json` (đã tạo sẵn)
+- `nixpacks.toml` (đã tạo sẵn) - **Ưu tiên**
+- `railway.json` (fallback)
 - Hoặc cấu hình trong Railway Dashboard
 
 ### Build Settings:
